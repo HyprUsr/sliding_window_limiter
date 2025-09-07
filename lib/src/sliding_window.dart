@@ -19,7 +19,9 @@ class SlidingWindow {
       return 0;
     }
     final now = DateTime.now();
-    int windowInMicroseconds = windowEndAt.difference(windowStartAt).inMicroseconds;
+    int windowInMicroseconds = windowEndAt
+        .difference(windowStartAt)
+        .inMicroseconds;
     double hitCountPerMicrosecond = hitCount / windowInMicroseconds;
     int elapsedMicroseconds = windowEndAt.difference(now).inMicroseconds;
     return hitCountPerMicrosecond * elapsedMicroseconds;
