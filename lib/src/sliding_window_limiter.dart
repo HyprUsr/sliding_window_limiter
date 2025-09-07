@@ -2,13 +2,24 @@ import 'package:sliding_window_limiter/src/rate_limit.dart';
 import 'package:sliding_window_limiter/src/sliding_window.dart';
 import 'package:sliding_window_limiter/src/storage.dart';
 
-/// Sliding window limiter.
+/// Sliding window rate limiter.
+///
+/// Uses a classic sliding window algorithm to smooth bursts while
+/// honoring a maximum [limit] over a given [interval].
 class SlidingWindowLimiter {
+  /// Unique identifier for the subject being limited.
   final String id;
+
+  /// Maximum number of tokens allowed per [interval].
   final int limit;
+
+  /// Duration of the sliding window.
   final Duration interval;
+
+  /// Backend used to persist and retrieve window state.
   final Storage storage;
 
+  /// Creates a limiter that enforces [limit] over [interval] for [id].
   SlidingWindowLimiter({
     required this.id,
     required this.limit,
@@ -16,6 +27,10 @@ class SlidingWindowLimiter {
     required this.storage,
   });
 
+  /// Attempts to consume [tokens] from the current window.
+  ///
+  /// Returns a [RateLimit] describing whether the request was accepted,
+  /// how many tokens remain, and when to retry if rejected.
   Future<RateLimit> consume(int tokens) async {
     var window = await storage.fetch(id);
     if (window == null || window.isExpired()) {
