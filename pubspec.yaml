@@ -1,0 +1,14 @@
+name: sliding_window_limiter
+description: A Dart implementation of a sliding window rate limiter.
+version: 1.0.0
+repository: https://github.com/HyprUsr/sliding_window_limiter
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+# No dependencies
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.6
