@@ -6,7 +6,9 @@ import 'package:sliding_window_limiter/src/sliding_window.dart';
 /// such as Redis, a database, in‑memory cache, etc.
 abstract class Storage {
   /// Persist the given [window]. Called after each `consume` attempt.
-  Future<void> save(SlidingWindow window);
+  ///
+  /// [ttl] Time-to-live duration for the window storage.
+  Future<void> save(SlidingWindow window, Duration ttl);
 
   /// Retrieve a window by [id]. Returns `null` if no state exists yet.
   Future<SlidingWindow?> fetch(String id);

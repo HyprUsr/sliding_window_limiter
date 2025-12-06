@@ -46,7 +46,7 @@ class SlidingWindowLimiter {
       window.hitCount = hitCount + tokens;
       window.windowStartAt = DateTime.now();
     }
-    await storage.save(window);
+    await storage.save(window, interval);
     return RateLimit(
       remainingTokens: availableTokens - (accepted ? tokens : 0),
       retryAfter: DateTime.now().add(waitSeconds),

@@ -6,13 +6,12 @@ SlidingWindowLimiter buildLimiter({
   int limit = 120,
   Duration interval = const Duration(minutes: 1),
   Storage? storage,
-}) =>
-    SlidingWindowLimiter(
-      id: id,
-      limit: limit,
-      interval: interval,
-      storage: storage ?? MemoryStorage(),
-    );
+}) => SlidingWindowLimiter(
+  id: id,
+  limit: limit,
+  interval: interval,
+  storage: storage ?? MemoryStorage(),
+);
 
 void main() {
   group('Sliding window limiter basics', () {
@@ -212,7 +211,7 @@ class MemoryStorage implements Storage {
   final Map<String, SlidingWindow> _store = {};
 
   @override
-  Future<void> save(SlidingWindow window) async {
+  Future<void> save(SlidingWindow window, Duration ttl) async {
     _store[window.id] = window;
   }
 

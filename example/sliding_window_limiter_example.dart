@@ -22,9 +22,8 @@ Future<void> main() async {
 
 class RedisStorage implements Storage {
   @override
-  Future<void> save(SlidingWindow window) async {
+  Future<void> save(SlidingWindow window, Duration ttl) async {
     // Simulate saving to Redis
-    // use ttl: window.windowEndAt.difference(DateTime.now())
   }
 
   @override
