@@ -9,3 +9,7 @@
 ## 2.0.0
 
 - Refactor the SlidingWindowLimiter logic and fixed a bug in it
+
+## 2.0.1
+
+- Add ttl parameter to Storage.save() method

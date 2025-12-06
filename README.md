@@ -39,8 +39,8 @@ Future<void> main() async {
 // Example storage (replace with real Redis client)
 class RedisStorage implements Storage {
   @override
-  Future<void> save(SlidingWindow window) async {
-    // Persist window.toJson()
+  Future<void> save(SlidingWindow window, Duration ttl) async {
+    // Persist window.toJson() and set TTL
   }
 
   @override
@@ -59,7 +59,7 @@ class MemoryStorage implements Storage {
   final Map<String, SlidingWindow> _store = {};
 
   @override
-  Future<void> save(SlidingWindow window) async {
+  Future<void> save(SlidingWindow window, Duration ttl) async {
     _store[window.id] = window;
   }
 
@@ -87,7 +87,7 @@ class MemoryStorage implements Storage {
   - `limit`: configured max tokens per interval.
 
 - `Storage` interface:
-  - `Future<void> save(SlidingWindow window)`
+  - `Future<void> save(SlidingWindow window, Duration ttl)`
   - `Future<SlidingWindow?> fetch(String id)`
 
 Notes:
