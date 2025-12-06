@@ -33,23 +33,18 @@ class SlidingWindowLimiter {
   /// how many tokens remain, and when to retry if rejected.
   Future<RateLimit> consume(int tokens) async {
     var window = await storage.fetch(id);
-    if (window == null || window.isExpired()) {
-      window = SlidingWindow(
-        id: id,
-        windowStartAt: DateTime.now(),
-        windowEndAt: DateTime.now().add(interval),
-      );
+    if (window == null || _isWindowExpired(window)) {
+      window = SlidingWindow(id: id, windowStartAt: DateTime.now());
     }
 
-    final hitCount = window.getUpdatedHitCount();
+    final hitCount = _getUpdatedHitCount(window);
     final availableTokens = limit - hitCount;
-    final waitSeconds = window.getWaitTimeForTokens(limit, tokens);
+    final waitSeconds = _getWaitTimeForTokens(limit, tokens, window);
     final accepted = tokens <= availableTokens;
 
     if (accepted) {
-      window.hitCount += tokens;
+      window.hitCount = hitCount + tokens;
       window.windowStartAt = DateTime.now();
-      window.windowEndAt = DateTime.now().add(interval);
     }
     await storage.save(window);
     return RateLimit(
@@ -58,5 +53,49 @@ class SlidingWindowLimiter {
       accepted: accepted,
       limit: limit,
     );
+  }
+
+  /// Whether the window is past its end time.
+  bool _isWindowExpired(SlidingWindow window) {
+    return DateTime.now().isAfter(window.windowStartAt.add(interval));
+  }
+
+  /// Returns the decayed hit count at the current moment.
+  ///
+  /// As time advances toward [windowEndAt], the effective hit count
+  /// decreases linearly, implementing the sliding window behavior.
+  double _getUpdatedHitCount(SlidingWindow window) {
+    if (_isWindowExpired(window)) {
+      return 0;
+    }
+    final now = DateTime.now();
+    int windowInMilliseconds = interval.inMilliseconds;
+    final elapsedInMilliseconds = now
+        .difference(window.windowStartAt)
+        .inMilliseconds;
+    final decayFactor = elapsedInMilliseconds / windowInMilliseconds;
+    final decayedHitCount = window.hitCount * (1 - decayFactor);
+    return decayedHitCount;
+  }
+
+  /// Computes how long to wait until [tokens] can be accepted.
+  ///
+  /// [maxSize] is the window capacity (i.e. limit). If there are enough
+  /// remaining tokens in the window, returns [Duration.zero].
+  Duration _getWaitTimeForTokens(
+    int maxSize,
+    int tokens,
+    SlidingWindow window,
+  ) {
+    assert(tokens > 0 && maxSize > 0 && tokens <= maxSize);
+    final updatedHitCount = _getUpdatedHitCount(window);
+    final remaining = maxSize - updatedHitCount;
+    if (remaining >= tokens) {
+      return Duration.zero;
+    }
+    int windowInMilliseconds = interval.inMilliseconds;
+    double timeForEachToken = windowInMilliseconds / maxSize;
+    final tokensNeeded = tokens - remaining;
+    return Duration(milliseconds: (tokensNeeded * timeForEachToken).ceil());
   }
 }
