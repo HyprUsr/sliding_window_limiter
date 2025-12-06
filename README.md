@@ -40,8 +40,7 @@ Future<void> main() async {
 class RedisStorage implements Storage {
   @override
   Future<void> save(SlidingWindow window) async {
-    // Persist window.toJson() and set TTL to:
-    //   window.windowEndAt.difference(DateTime.now())
+    // Persist window.toJson()
   }
 
   @override
@@ -66,9 +65,7 @@ class MemoryStorage implements Storage {
 
   @override
   Future<SlidingWindow?> fetch(String id) async {
-    final w = _store[id];
-    if (w == null || w.isExpired()) return null;
-    return w;
+    return _store[id];
   }
 }
 ```
@@ -95,7 +92,7 @@ class MemoryStorage implements Storage {
 
 Notes:
 - `tokens` must be > 0 and <= `limit`.
-- Use your storage’s TTL equal to `windowEndAt - now` to auto‑expire windows.
+- Use your storage’s TTL equal to `interval` to auto‑expire windows.
 - The algorithm decays usage continuously within the window for smooth limiting.
 
 ## License
