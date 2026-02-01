@@ -55,6 +55,20 @@ class SlidingWindowLimiter {
     );
   }
 
+  /// Checks if [tokens] can be consumed from the current window.
+  ////
+  /// Does not modify the window state.
+  Future<bool> canConsume(int tokens) async {
+    var window = await storage.fetch(id);
+    if (window == null || _isWindowExpired(window)) {
+      return tokens <= limit;
+    }
+
+    final hitCount = _getUpdatedHitCount(window);
+    final availableTokens = limit - hitCount;
+    return tokens <= availableTokens;
+  }
+
   /// Whether the window is past its end time.
   bool _isWindowExpired(SlidingWindow window) {
     return DateTime.now().isAfter(window.windowStartAt.add(interval));
