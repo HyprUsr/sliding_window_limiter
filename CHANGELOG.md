@@ -13,3 +13,7 @@
 ## 2.0.1
 
 - Add ttl parameter to Storage.save() method
+
+## 2.0.2
+
+- Implement canConsume method to check token availability without modifying window state

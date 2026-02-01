@@ -23,6 +23,9 @@ Future<void> main() async {
     storage: RedisStorage(),          // your Storage implementation
   );
 
+  // Check without actually consuming
+  final check = await limiter.canConsume(1);
+
   // Request 1 token for this operation
   final result = await limiter.consume(1);
 
